@@ -12,7 +12,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "azula";
   networking.networkmanager.enable = true;
@@ -50,6 +50,31 @@
   services.xserver.xkb = {
     layout = "us";
     variant = "intl";
+  };
+
+  # 3D stack
+  hardware.graphics.enable = true;      # replaces old hardware.opengl.enable
+  hardware.graphics.enable32Bit = true; # for Steam, etc.
+
+  # Tell X/Wayland to use NVIDIA
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia = {
+    open = true;                # 570 series supports the open kernel module
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    nvidiaSettings = true;      # gives you the nvidia-settings GUI
+  };
+
+  # Pin to driver 570.133.07 (this exact snippet is confirmed working on NixOS 25.05 + linux 6.14.8).
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+    version = "570.133.07";
+
+    sha256_64bit   = "sha256-LUPmTFgb5e9VTemIixqpADfvbUX1QoTT2dztwI3E3CY=";
+    openSha256     = "sha256-9l8N83Spj0MccA8+8R1uqiXBS0Ag4JrLPjrU3TaXHnM=";
+    settingsSha256 = "sha256-XMk+FvTlGpMquM8aE8kgYK2PIEszUZD2+Zmj2OpYrzU=";
+
+    usePersistenced = false;
   };
 
   # Configure console keymap
@@ -133,6 +158,8 @@
     # awscli2
     # aws-vault
     # openvpn
+
+    config.hardware.nvidia.package
   ];
 
   virtualisation.docker.rootless = {
