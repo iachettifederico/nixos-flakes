@@ -37,15 +37,15 @@
     LC_TIME = "es_AR.UTF-8";
   };
 
-  services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.cinnamon.enable = true;
+  # services.xserver.enable = true;
+  # services.xserver.displayManager.lightdm.enable = true;
+  # services.xserver.desktopManager.cinnamon.enable = true;
 
-  # services.xserver = {
-  #   enable = true;
-  #   displayManager.lightdm.enable = true; # or greetd, sddm, etc.
-  #   windowManager.i3.enable = true;
-  # };
+  services.xserver = {
+    enable = true;
+    displayManager.lightdm.enable = true; # or greetd, sddm, etc.
+    windowManager.i3.enable = true;
+  };
 
   services.xserver.xkb = {
     layout = "us";
@@ -81,7 +81,7 @@
   users.users.fedex = {
     isNormalUser = true;
     description = "Federico Martín Iachetti";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     shell = pkgs.zsh;
     packages = with pkgs; [
       #  thunderbird
@@ -108,17 +108,38 @@
     tealdeer
     xclip
     bat
+    gnumake
 
     mise
     docker
     docker-compose
     xmodmap
+    font-awesome
+    inconsolata
     jetbrains-mono
+    source-code-pro
+    rofi
+    arandr
+    pandoc
+    ripgrep
+    silver-searcher
+
+    telegram-desktop
+    ferdium
+    slack
+    discord
 
     # Kalkomey
-    # vault
+    # awscli2
+    # aws-vault
     # openvpn
   ];
+
+  virtualisation.docker.rootless = {
+    enable = true;
+    # enableOnBoot = true;
+    setSocketVariable = true;
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
