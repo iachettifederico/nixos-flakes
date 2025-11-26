@@ -7,7 +7,12 @@
 
   outputs = { self, nixpkgs }: {
     nixosConfigurations.azula = nixpkgs.lib.nixosSystem {
-      modules = [ ./configuration.nix ];
+      system = "x86_64-linux";
+
+      modules = [
+        ./configuration.nix
+        ./modules/ruby.nix
+      ];
     };
   };
 }
