@@ -12,6 +12,7 @@
       modules = [
         ./configuration.nix
         ./modules/ruby.nix
+        ./modules/npm.nix
       ];
     };
   };
