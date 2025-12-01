@@ -153,6 +153,7 @@
     arandr
     bat
     brave
+    davinci-resolve
     discord
     docker
     docker-compose
