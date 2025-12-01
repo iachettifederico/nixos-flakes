@@ -204,6 +204,13 @@
     setSocketVariable = true;
   };
 
+  security.sudo.extraRules = [
+    {
+      groups = [ "wheel" ];
+      commands = [ { command = "ALL"; options = [ "NOPASSWD" ]; } ];
+    }
+  ];
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
