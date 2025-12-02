@@ -206,8 +206,17 @@
 
   virtualisation.docker.rootless = {
     enable = true;
-    # enableOnBoot = true;
     setSocketVariable = true;
+
+    daemon.settings = {
+      # Force sane DNS servers inside containers, often fixes build-time resolution issues.
+      dns = [ "1.1.1.1" "8.8.8.8" ];
+
+      experimental = true;
+      features = {
+        buildkit = true;
+      };
+    };
   };
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
