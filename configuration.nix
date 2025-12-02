@@ -151,6 +151,7 @@
     _1password-cli
     _1password-gui
     arandr
+    audacity
     bat
     brave
     davinci-resolve
@@ -161,6 +162,7 @@
     emacs
     feh
     ferdium
+    ffmpeg
     firefox-devedition
     flameshot
     font-awesome
@@ -169,7 +171,9 @@
     inconsolata
     jetbrains-mono
     libnotify
+    mc
     mise
+    nemo
     obs-studio
     opencode
     pandoc
@@ -185,7 +189,9 @@
     terminator
     tilda
     vim
+    vlc
     xclip
+    xhost
     xmodmap
     zoom-us
 
@@ -193,7 +199,7 @@
     awscli2
     vault
     teams-for-linux
-    # openvpn
+    openvpn
 
     config.hardware.nvidia.package
   ];
@@ -203,6 +209,10 @@
     # enableOnBoot = true;
     setSocketVariable = true;
   };
+
+  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+  boot.kernel.sysctl."net.ipv6.ip_forward" = 1;
+
 
   security.sudo.extraRules = [
     {
