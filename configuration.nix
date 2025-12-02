@@ -19,10 +19,8 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Set your time zone.
   time.timeZone = "America/Argentina/Cordoba";
 
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
   i18n.extraLocaleSettings = {
@@ -53,8 +51,10 @@
   };
 
   # 3D stack
-  hardware.graphics.enable = true;      # replaces old hardware.opengl.enable
-  hardware.graphics.enable32Bit = true; # for Steam, etc.
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
 
   # Tell X/Wayland to use NVIDIA
   services.xserver.videoDrivers = [ "nvidia" ];
@@ -99,7 +99,6 @@
     ];
   };
 
-  # Enable CUPS to print documents.
   services.printing.enable = true;
 
   # Enable sound with pipewire.
@@ -222,13 +221,22 @@
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
   boot.kernel.sysctl."net.ipv6.ip_forward" = 1;
 
-
   security.sudo.extraRules = [
     {
       groups = [ "wheel" ];
       commands = [ { command = "ALL"; options = [ "NOPASSWD" ]; } ];
     }
   ];
+
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+  };
+
+  hardware.opengl = {
+    enable = true;
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
