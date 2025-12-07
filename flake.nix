@@ -3,11 +3,23 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs-ruby = {
+      url = "github:bobvanderlinden/nixpkgs-ruby";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs, nixpkgs-ruby }: 
+  let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+  in {
     nixosConfigurations.azula = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
+      inherit system;
+
+      specialArgs = { 
+        ruby-packages = nixpkgs-ruby.packages.${system};
+      };
 
       modules = [
         ./configuration.nix
@@ -15,5 +27,27 @@
         ./modules/npm.nix
       ];
     };
+
+    # Expose Ruby packages for direnv
+    packages.${system} = nixpkgs-ruby.packages.${system} // {
+      default = nixpkgs-ruby.packages.${system}."ruby-3";
+    };
+
+    # Expose devShells for each Ruby version
+    devShells.${system} = builtins.mapAttrs (name: ruby: 
+      pkgs.mkShell {
+        buildInputs = [ 
+          ruby 
+          # Build dependencies for Ruby gems with native extensions
+          pkgs.libyaml      # for psych gem (YAML)
+          pkgs.openssl      # for SSL-related gems
+          pkgs.zlib         # for compression
+          pkgs.readline     # for readline support
+          pkgs.pkg-config   # for finding libraries
+          pkgs.gcc          # C compiler
+          pkgs.gnumake      # make utility
+        ];
+      }
+    ) nixpkgs-ruby.packages.${system};
   };
 }
