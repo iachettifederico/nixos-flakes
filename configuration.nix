@@ -121,14 +121,18 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.groups.fedex = {
+    gid = 1000;
+  };
+
   users.users.fedex = {
     isNormalUser = true;
     description = "Federico Martín Iachetti";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    uid = 1000;
+    group = "fedex";  # primary group
+    extraGroups = [ "users" "networkmanager" "wheel" "docker" ];
     shell = pkgs.zsh;
-    packages = with pkgs; [
-      #  thunderbird
-    ];
+    packages = with pkgs; [];
   };
 
   # Enable automatic login for the user.
