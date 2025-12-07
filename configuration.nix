@@ -171,6 +171,7 @@
     font-awesome
     git
     gnumake
+    godot
     inconsolata
     jetbrains-mono
     libnotify
