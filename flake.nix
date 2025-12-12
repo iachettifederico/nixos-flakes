@@ -7,18 +7,46 @@
       url = "github:bobvanderlinden/nixpkgs-ruby";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-ruby }:
+  outputs = { self, nixpkgs, nixpkgs-ruby, emacs-overlay }:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ emacs-overlay.overlays.default ];
+      };
+
+      # Custom Emacs build with tree-sitter grammars
+      emacs-with-grammars = pkgs.emacsWithPackagesFromUsePackage {
+        config = "";
+        defaultInitFile = false;
+        alwaysEnsure = true;
+        package = pkgs.emacs-gtk;
+
+        extraEmacsPackages = epkgs: with epkgs; [
+          # Tree-sitter grammars
+          treesit-grammars.with-all-grammars
+
+          # Common packages
+          use-package
+          envrc
+          yaml-mode
+          nix-mode
+          dockerfile-mode
+        ];
+      };
     in {
       nixosConfigurations.azula = nixpkgs.lib.nixosSystem {
         inherit system;
 
         specialArgs = {
           ruby-packages = nixpkgs-ruby.packages.${system};
+          inherit emacs-with-grammars;
         };
 
         modules = [

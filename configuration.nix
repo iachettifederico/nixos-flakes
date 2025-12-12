@@ -1,6 +1,6 @@
 # sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes-azula#azula"
 
-{ config, pkgs, ... }:
+{ config, pkgs, emacs-with-grammars, ... }:
 
 {
   imports =
@@ -162,7 +162,7 @@
     docker
     docker-compose
     dunst
-    emacs
+    emacs-with-grammars
     feh
     ferdium
     ffmpeg
