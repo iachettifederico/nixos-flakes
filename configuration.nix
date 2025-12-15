@@ -89,6 +89,7 @@
       inconsolata
       jetbrains-mono
       source-code-pro
+      nerd-fonts.fira-code
     ];
 
     # Optional but nice: default monospace fonts
