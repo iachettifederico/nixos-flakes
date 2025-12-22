@@ -267,6 +267,16 @@
     polkitPolicyOwners = [ "fedex" ];
   };
 
+  virtualisation.virtualbox = {
+    host = {
+      enable = true;
+      enableExtensionPack = true;
+      addNetworkInterface = false; # <- prevents vboxnet0.service
+    };
+  };
+
+  users.extraGroups.vboxusers.members = [ "fedex" ];
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
