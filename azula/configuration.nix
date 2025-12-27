@@ -169,6 +169,7 @@
     flameshot
     font-awesome
     git
+    git-lfs
     github-cli
     gnome-calculator
     gnumake
@@ -193,6 +194,7 @@
     terminator
     tilda
     tree
+    unzip
     vim
     vlc
     watchman
