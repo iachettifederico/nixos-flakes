@@ -64,16 +64,16 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
-    open = true;                # 570 series supports the open kernel module
+    open = true;
     modesetting.enable = true;
-    powerManagement.enable = false;
-    nvidiaSettings = true;      # gives you the nvidia-settings GUI
-    
+    powerManagement.enable = true;
+    nvidiaSettings = true;
+
     # PRIME configuration for hybrid graphics (NVIDIA + Intel)
     # Sync mode: NVIDIA renders, Intel outputs to display
     prime = {
       sync.enable = true;
-      
+
       # Bus IDs found via: lspci | grep -E "VGA|3D"
       # Intel: 00:02.0 - integrated GPU (has the display connected)
       # NVIDIA: 01:00.0 - discrete GPU (RTX 2050)
@@ -151,7 +151,7 @@
     description = "Federico Martín Iachetti";
     uid = 1000;
     group = "fedex";  # primary group
-    extraGroups = [ "users" "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "users" "networkmanager" "wheel" "docker" "adbusers" "video" ];
     shell = pkgs.zsh;
     packages = with pkgs; [];
   };
@@ -163,7 +163,7 @@
     group = "sofi";  # primary group
     extraGroups = [ "users" "networkmanager" "wheel" ];
     shell = pkgs.zsh;
-    packages = with pkgs; [];   
+    packages = with pkgs; [];
   };
 
   # Enable automatic login for the user.
@@ -314,6 +314,8 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  programs.adb.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
