@@ -249,10 +249,6 @@
     dedicatedServer.openFirewall = true;
   };
 
-  hardware.opengl = {
-    enable = true;
-  };
-
   services.sunshine = {
     enable = true;
     autoStart = true;
