@@ -189,6 +189,7 @@
     obs-studio
     ollama-cuda
     pandoc
+    python3Packages.weasyprint
     pavucontrol
     ripgrep
     rofi
