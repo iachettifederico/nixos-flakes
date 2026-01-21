@@ -204,6 +204,7 @@
     telegram-desktop
     terminator
     tilda
+    transmission_4-gtk
     tree
     unzip
     vim
