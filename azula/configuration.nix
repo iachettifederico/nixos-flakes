@@ -181,6 +181,9 @@
     hledger-ui
     hledger-web
     inconsolata
+    jellyfin
+    jellyfin-ffmpeg
+    jellyfin-web
     jetbrains-mono
     ledger
     libnotify
@@ -189,8 +192,8 @@
     obs-studio
     ollama-cuda
     pandoc
-    python3Packages.weasyprint
     pavucontrol
+    python3Packages.weasyprint
     ripgrep
     rofi
     silver-searcher
@@ -302,6 +305,37 @@
     # loadModels = [ "qwen2.5-coder:7b" "deepseek-r1:7b" ]; # pre-pull at startup
     # environmentVariables = { OLLAMA_KEEP_ALIVE = "10m"; };
   };
+
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+    user = "fedex";
+  };
+
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "fiachetti@omashu.com";
+  };
+
+  services.nginx = {
+    enable = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
+    recommendedGzipSettings = true;
+    recommendedOptimisation = true;
+
+    virtualHosts."jellyfin.omashu.org" = {
+      enableACME = true;
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8096";
+        proxyWebsockets = true;
+      };
+    };
+  };
+
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
