@@ -321,6 +321,14 @@
     user = "fedex";
   };
 
+  services.syncthing = {
+    enable = true;
+    user = "fedex";
+    dataDir = "/home/fedex/.local/share/syncthing";
+    configDir = "/home/fedex/.config/syncthing";
+    openDefaultPorts = true;
+  };
+
   security.acme = {
     acceptTerms = true;
     defaults.email = "fiachetti@omashu.com";
