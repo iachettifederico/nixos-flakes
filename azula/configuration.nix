@@ -197,7 +197,6 @@
     morgen
     nemo
     obs-studio
-    ollama-cuda
     pandoc
     pavucontrol
     python3Packages.weasyprint
@@ -220,6 +219,8 @@
     xhost
     xmodmap
     zoom-us
+
+    # ollama-cuda
 
     # Kalkomey
     awscli2
@@ -294,25 +295,25 @@
 
   users.extraGroups.vboxusers.members = [ "fedex" ];
 
-  services.ollama = {
-    enable = true;
+  # services.ollama = {
+  #   enable = true;
 
-    # user = "fedex";
-    # group = "users";
+  #   # user = "fedex";
+  #   # group = "users";
 
-    # Key change: select the CUDA build
-    package = pkgs.ollama-cuda;
+  #   # Key change: select the CUDA build
+  #   package = pkgs.ollama-cuda;
 
-    # Keep it local (good default for OpenCode on the same machine)
-    host = "127.0.0.1";
-    port = 11434;
+  #   # Keep it local (good default for OpenCode on the same machine)
+  #   host = "127.0.0.1";
+  #   port = 11434;
 
-    # Optional but useful knobs:
-    openFirewall = false; # default is typically false
-    models = "/var/lib/ollama/models"; # if you want to control where models live
-    # loadModels = [ "qwen2.5-coder:7b" "deepseek-r1:7b" ]; # pre-pull at startup
-    # environmentVariables = { OLLAMA_KEEP_ALIVE = "10m"; };
-  };
+  #   # Optional but useful knobs:
+  #   openFirewall = false; # default is typically false
+  #   models = "/var/lib/ollama/models"; # if you want to control where models live
+  #   # loadModels = [ "qwen2.5-coder:7b" "deepseek-r1:7b" ]; # pre-pull at startup
+  #   # environmentVariables = { OLLAMA_KEEP_ALIVE = "10m"; };
+  # };
 
   services.jellyfin = {
     enable = true;
