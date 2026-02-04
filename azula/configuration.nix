@@ -163,6 +163,7 @@
     docker-compose
     dunst
     emacs-with-grammars
+    entr
     evince
     feh
     ferdium
