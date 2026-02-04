@@ -185,6 +185,7 @@
     inconsolata
     jellyfin
     jellyfin-ffmpeg
+    jellyfin-media-player
     jellyfin-web
     jetbrains-mono
     jq
@@ -192,6 +193,8 @@
     ledger
     libnotify
     mc
+    mermaid-cli
+    morgen
     nemo
     obs-studio
     ollama-cuda
