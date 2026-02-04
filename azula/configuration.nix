@@ -170,6 +170,7 @@
     ffmpeg
     firefox-devedition
     flameshot
+    foliate
     font-awesome
     git
     git-lfs
