@@ -187,6 +187,7 @@
     jellyfin-ffmpeg
     jellyfin-web
     jetbrains-mono
+    jq
     lazydocker
     ledger
     libnotify
