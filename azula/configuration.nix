@@ -197,6 +197,7 @@
     morgen
     nemo
     obs-studio
+    opencode
     pandoc
     pavucontrol
     python3Packages.weasyprint
