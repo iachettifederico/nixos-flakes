@@ -197,7 +197,6 @@
     morgen
     nemo
     obs-studio
-    opencode
     pandoc
     pavucontrol
     python3Packages.weasyprint
@@ -215,12 +214,13 @@
     unzip
     vim
     vlc
-    watchman
     xclip
     xhost
     xmodmap
     zoom-us
 
+    # opencode
+    # watchman
     # ollama-cuda
 
     # Kalkomey
