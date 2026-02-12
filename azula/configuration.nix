@@ -354,8 +354,6 @@
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  services.expressvpn.enable = true;
-
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
