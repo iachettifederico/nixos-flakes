@@ -226,7 +226,6 @@
     # Kalkomey
     awscli2
     openvpn
-    teams-for-linux
     vault
 
     config.hardware.nvidia.package
