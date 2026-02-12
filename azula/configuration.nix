@@ -189,6 +189,7 @@
     jellyfin-web
     jetbrains-mono
     jq
+    jre21_minimal
     lazydocker
     ledger
     libnotify
