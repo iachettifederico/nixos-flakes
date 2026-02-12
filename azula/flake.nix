@@ -3,12 +3,14 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
     nixpkgs-ruby = {
       url = "github:bobvanderlinden/nixpkgs-ruby";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     opencode = {
       url = "github:anomalyco/opencode/dev";
+      inputs.nixpkgs.follows = "nixpkgs-master";
     };
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
@@ -16,22 +18,27 @@
     };
   };
 
-  outputs = { self, nixpkgs, opencode, nixpkgs-ruby, emacs-overlay }:
+  outputs = { self, nixpkgs, nixpkgs-master, opencode, nixpkgs-ruby, emacs-overlay }:
     let
       system = "x86_64-linux";
+      pkgs-master = import nixpkgs-master { inherit system; };
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ emacs-overlay.overlays.default ];
+        overlays = [
+          emacs-overlay.overlays.default
+          # Disable folly tests - one test (AsyncSocketIntegrationTest.PingPongRecvTos) 
+          # segfaults in the sandbox environment
+          (final: prev: {
+            folly = prev.folly.overrideAttrs (old: {
+              doCheck = false;
+            });
+          })
+          # Use bun from nixpkgs master (1.3.9) for opencode compatibility
+          (final: prev: {
+            bun = pkgs-master.bun;
+          })
+        ];
       };
-
-      # Pin bun to 1.3.5 for opencode compatibility
-      bun-1-3-5 = pkgs.bun.overrideAttrs (oldAttrs: rec {
-        version = "1.3.5";
-        src = pkgs.fetchurl {
-          url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-          hash = "sha256-cFHYapJK7+o+C5YhO1/Y95wHk/nK5lNCM+Yn5cPbRmk=";
-        };
-      });
 
       # Custom Emacs build with tree-sitter grammars
       emacs-with-grammars = pkgs.emacsWithPackagesFromUsePackage {
@@ -67,11 +74,14 @@
           ./modules/npm.nix
 
           # Install OpenCode from the official dev branch.
+          # Override bun to use 1.3.9 from nixpkgs-master
           ({ pkgs, ... }: {
             environment.systemPackages = [
-              (opencode.packages.${system}.default.override {
-                bun = bun-1-3-5;
-              })
+              (opencode.packages.${system}.default.overrideAttrs (old: {
+                nativeBuildInputs = map (pkg:
+                  if pkg.pname or "" == "bun" then pkgs-master.bun else pkg
+                ) old.nativeBuildInputs;
+              }))
             ];
           })
         ];
