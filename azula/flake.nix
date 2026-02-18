@@ -37,8 +37,20 @@
           (final: prev: {
             bun = pkgs-master.bun;
           })
+          # Exclude broken tree-sitter-quint grammar (hash mismatch in nixpkgs)
+          (final: prev: {
+            tree-sitter-grammars = prev.tree-sitter-grammars // {
+              tree-sitter-quint = null;
+            };
+          })
         ];
       };
+
+      # Build tree-sitter grammars excluding broken ones
+      treesit-grammars-filtered = pkgs.emacsPackages.treesit-grammars.with-grammars (grammars:
+        builtins.filter (g: g != null && (g.pname or "") != "tree-sitter-quint")
+          (builtins.attrValues grammars)
+      );
 
       # Custom Emacs build with tree-sitter grammars
       emacs-with-grammars = pkgs.emacsWithPackagesFromUsePackage {
@@ -48,8 +60,8 @@
         package = pkgs.emacs-gtk;
 
         extraEmacsPackages = epkgs: with epkgs; [
-          # Tree-sitter grammars
-          treesit-grammars.with-all-grammars
+          # Tree-sitter grammars (filtered to exclude broken ones)
+          treesit-grammars-filtered
 
           # Common packages
           use-package
