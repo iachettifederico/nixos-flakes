@@ -228,7 +228,7 @@
 
     # opencode
     # watchman
-    # ollama-cuda
+    ollama-cuda
 
     # Kalkomey
     awscli2
@@ -301,6 +301,8 @@
   };
 
   users.extraGroups.vboxusers.members = [ "fedex" ];
+
+  systemd.services.ollama.serviceConfig.RequiresMountsFor = [ "/var/lib/ollama" ];
 
   # services.ollama = {
   #   enable = true;
