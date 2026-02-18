@@ -66,6 +66,12 @@
     nvidiaSettings = true;      # gives you the nvidia-settings GUI
   };
 
+  environment.sessionVariables = {
+    PATH = "$HOME/bin:$PATH";
+    XCURSOR_THEME = "Adwaita";
+    # XCURSOR_SIZE = "24";  # Optional: sets cursor size (common values: 16, 24, 32, 48)
+  };
+
   # # Pin to driver 570.133.07 (this exact snippet is confirmed working on NixOS 25.05 + linux 6.14.8).
   # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
   #   version = "570.133.07";
