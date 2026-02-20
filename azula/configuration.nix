@@ -137,7 +137,7 @@
     description = "Federico Martín Iachetti";
     uid = 1000;
     group = "fedex";  # primary group
-    extraGroups = [ "users" "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "users" "networkmanager" "wheel" "docker" "libvirtd" ];
     shell = pkgs.zsh;
     packages = with pkgs; [];
   };
@@ -189,21 +189,21 @@
     hledger-ui
     hledger-web
     inconsolata
+    jdk21
     jellyfin
     jellyfin-ffmpeg
     jellyfin-media-player
     jellyfin-web
     jetbrains-mono
     jq
-    jdk21
     lazydocker
     ledger
     libnotify
     mc
     mermaid-cli
-    morgen
     nemo
     obs-studio
+    ollama-cuda
     pandoc
     pavucontrol
     python3Packages.weasyprint
@@ -220,15 +220,12 @@
     tree
     unzip
     vim
+    virtiofsd
     vlc
     xclip
     xhost
     xmodmap
     zoom-us
-
-    # opencode
-    # watchman
-    ollama-cuda
 
     # Kalkomey
     awscli2
@@ -302,27 +299,28 @@
 
   users.extraGroups.vboxusers.members = [ "fedex" ];
 
-  systemd.services.ollama.serviceConfig.RequiresMountsFor = [ "/var/lib/ollama" ];
+  # QEMU/KVM virtualisation
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      vhostUserPackages = [ pkgs.virtiofsd ];
+    };
+  };
 
-  # services.ollama = {
-  #   enable = true;
+  programs.virt-manager.enable = true;
 
-  #   # user = "fedex";
-  #   # group = "users";
+  # Ollama AI service (accessible from VMs via virbr0 bridge)
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-cuda;
+    host = "0.0.0.0";  # Listen on all interfaces including VM bridge
+    port = 11434;
+    openFirewall = false;  # Don't open to external network
+  };
 
-  #   # Key change: select the CUDA build
-  #   package = pkgs.ollama-cuda;
-
-  #   # Keep it local (good default for OpenCode on the same machine)
-  #   host = "127.0.0.1";
-  #   port = 11434;
-
-  #   # Optional but useful knobs:
-  #   openFirewall = false; # default is typically false
-  #   models = "/var/lib/ollama/models"; # if you want to control where models live
-  #   # loadModels = [ "qwen2.5-coder:7b" "deepseek-r1:7b" ]; # pre-pull at startup
-  #   # environmentVariables = { OLLAMA_KEEP_ALIVE = "10m"; };
-  # };
+  # Allow VMs to access Ollama via the libvirt NAT bridge
+  networking.firewall.interfaces."virbr0".allowedTCPPorts = [ 11434 ];
 
   services.jellyfin = {
     enable = true;
@@ -359,6 +357,27 @@
         proxyWebsockets = true;
       };
     };
+
+    virtualHosts."kraken.omashu.org" = {
+      enableACME = true;
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://192.168.122.107:4567";
+        proxyWebsockets = true;
+      };
+    };
+
+    virtualHosts."kraken-dev.omashu.org" = {
+      enableACME = true;
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://192.168.122.107:4568";
+        proxyWebsockets = true;
+      };
+    };
+
   };
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
