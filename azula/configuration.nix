@@ -137,7 +137,13 @@
     description = "Federico Martín Iachetti";
     uid = 1000;
     group = "fedex";  # primary group
-    extraGroups = [ "users" "networkmanager" "wheel" "docker" "libvirtd" ];
+    extraGroups = [
+      "docker"
+      "libvirtd"
+      "networkmanager"
+      "wheel"
+      "users"
+    ];
     shell = pkgs.zsh;
     packages = with pkgs; [];
   };
@@ -317,10 +323,11 @@
     host = "0.0.0.0";  # Listen on all interfaces including VM bridge
     port = 11434;
     openFirewall = false;  # Don't open to external network
+    environmentVariables = {
+      OLLAMA_HOST = "0.0.0.0";
+      OLLAMA_ORIGINS = "*";
+    };
   };
-
-  # Allow VMs to access Ollama via the libvirt NAT bridge
-  networking.firewall.interfaces."virbr0".allowedTCPPorts = [ 11434 ];
 
   services.jellyfin = {
     enable = true;
@@ -363,7 +370,7 @@
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://192.168.122.107:4567";
+        proxyPass = "http://192.168.122.50:4568";
         proxyWebsockets = true;
       };
     };
@@ -373,14 +380,18 @@
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://192.168.122.107:4568";
+        proxyPass = "http://192.168.122.50:4567";
         proxyWebsockets = true;
       };
     };
 
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  # Allow VMs to access Ollama via the libvirt NAT bridge
+  networking.firewall = {
+    allowedTCPPorts = [ 80 443]; # Don't open 11434 globally
+    interfaces."virbr0".allowedTCPPorts = [ 11434 ];
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -393,7 +404,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
