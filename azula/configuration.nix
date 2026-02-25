@@ -272,12 +272,12 @@
     dedicatedServer.openFirewall = true;
   };
 
-  services.sunshine = {
-    enable = true;
-    autoStart = true;
-    capSysAdmin = true;
-    openFirewall = true;
-  };
+  # services.sunshine = {
+  #   enable = true;
+  #   autoStart = true;
+  #   capSysAdmin = true;
+  #   openFirewall = true;
+  # };
 
   # Enable the unfree 1Password packages
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [
