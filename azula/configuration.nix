@@ -213,6 +213,7 @@
     pandoc
     pavucontrol
     python3Packages.weasyprint
+    remmina
     ripgrep
     rofi
     silver-searcher
