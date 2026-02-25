@@ -295,16 +295,6 @@
     polkitPolicyOwners = [ "fedex" ];
   };
 
-  virtualisation.virtualbox = {
-    host = {
-      enable = true;
-      enableExtensionPack = true;
-      addNetworkInterface = false; # <- prevents vboxnet0.service
-    };
-  };
-
-  users.extraGroups.vboxusers.members = [ "fedex" ];
-
   # QEMU/KVM virtualisation
   virtualisation.libvirtd = {
     enable = true;
