@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     opencode = {
-      url = "github:anomalyco/opencode/dev";
+      url = "github:anomalyco/opencode/v1.4.0";
       inputs.nixpkgs.follows = "nixpkgs-master";
     };
     emacs-overlay = {
@@ -52,6 +52,18 @@
           (builtins.attrValues grammars)
       );
 
+      # OpenCode v1.4.0 ships an outdated x86_64-linux node_modules hash.
+      # Rebuild that dependency with the current fixed-output hash so the
+      # system package remains reproducible.
+      opencode-node-modules = pkgs.callPackage "${opencode}/nix/node_modules.nix" {
+        rev = opencode.shortRev or opencode.dirtyShortRev or "dirty";
+        hash = "sha256-85wpU1oCWbthPleNIOj5d5AOuuYZ6rM7gMLZR6YJ2WU=";
+      };
+
+      opencode-package = pkgs.callPackage "${opencode}/nix/opencode.nix" {
+        node_modules = opencode-node-modules;
+      };
+
       # Custom Emacs build with tree-sitter grammars
       emacs-with-grammars = pkgs.emacsWithPackagesFromUsePackage {
         config = "";
@@ -89,11 +101,7 @@
           # Override bun to use 1.3.9 from nixpkgs-master
           ({ pkgs, ... }: {
             environment.systemPackages = [
-              (opencode.packages.${system}.default.overrideAttrs (old: {
-                nativeBuildInputs = map (pkg:
-                  if pkg.pname or "" == "bun" then pkgs-master.bun else pkg
-                ) old.nativeBuildInputs;
-              }))
+              opencode-package
             ];
           })
         ];

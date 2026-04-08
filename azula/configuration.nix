@@ -43,7 +43,15 @@
     enable = true;
     displayManager.lightdm.enable = true; # or greetd, sddm, etc.
     windowManager.i3.enable = true;
+    screenSection = ''
+      Option "nvidiaXineramaInfoOrder" "DPY-5"
+      Option "metamodes" "DPY-5: nvidia-auto-select @3840x2160 +2560+0 {ViewPortIn=3840x2160, ViewPortOut=3840x2160+0+0, ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}, DPY-2: nvidia-auto-select @2560x1080 +0+0 {ViewPortIn=2560x1080, ViewPortOut=2560x1080+0+0, ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}, DPY-4: nvidia-auto-select @1920x1080 +6400+0 {ViewPortIn=1920x1080, ViewPortOut=1920x1080+0+0, ForceCompositionPipeline=On, ForceFullCompositionPipeline=On}"
+    '';
   };
+
+  services.xserver.displayManager.sessionCommands = ''
+    ${pkgs.xrandr}/bin/xrandr --output DP-4 --primary
+  '';
 
   services.xserver.xkb = {
     layout = "us";
@@ -93,14 +101,14 @@
     packages = with pkgs; [
       font-awesome
       inconsolata
-      jetbrains-mono
+      # jetbrains-mono
       source-code-pro
       nerd-fonts.fira-code
     ];
 
     # Optional but nice: default monospace fonts
     fontconfig.defaultFonts.monospace = [
-      "JetBrains Mono"
+      # "JetBrains Mono"
       "Source Code Pro"
       "Inconsolata"
     ];
@@ -164,10 +172,13 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
 
+    # jetbrains-mono
+
     arandr
     audacity
     bat
     brave
+    claude-code
     davinci-resolve
     difftastic
     discord
@@ -184,6 +195,7 @@
     flameshot
     foliate
     font-awesome
+    ghostty
     git
     git-lfs
     github-cli
@@ -200,13 +212,15 @@
     jellyfin-ffmpeg
     jellyfin-media-player
     jellyfin-web
-    jetbrains-mono
     jq
+    kitty
     lazydocker
     ledger
     libnotify
     mc
     mermaid-cli
+    n8n
+    nvtopPackages.nvidia
     nemo
     obs-studio
     ollama-cuda
@@ -232,7 +246,6 @@
     xclip
     xhost
     xmodmap
-    zoom-us
 
     # Kalkomey
     awscli2
@@ -240,6 +253,11 @@
     vault
 
     config.hardware.nvidia.package
+  ];
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    libyaml
   ];
 
   virtualisation.docker.rootless = {
@@ -366,16 +384,54 @@
       };
     };
 
-    virtualHosts."kraken-dev.omashu.org" = {
-      enableACME = true;
-      forceSSL = true;
+    # virtualHosts."kraken-dev.omashu.org" = {
+    #   enableACME = true;
+    #   forceSSL = true;
 
-      locations."/" = {
-        proxyPass = "http://192.168.122.50:4567";
-        proxyWebsockets = true;
+    #   locations."/" = {
+    #     proxyPass = "http://192.168.122.50:4567";
+    #     proxyWebsockets = true;
+    #   };
+    # };
+
+  };
+
+  services.n8n = {
+    enable = true;
+
+    # Optional: open the port on the firewall (defaults to 5678)
+    openFirewall = true; # opens services.n8n.environment.N8N_PORT :contentReference[oaicite:1]{index=1}
+
+    environment = {
+      # Defaults are fine, but these are the common ones:
+      N8N_PORT = 5678;                 # :contentReference[oaicite:2]{index=2}
+      N8N_LISTEN_ADDRESS = "::";       # or "0.0.0.0" for IPv4 only :contentReference[oaicite:3]{index=3}
+
+      # If you’ll access it via a domain / reverse proxy:
+      # N8N_HOST = "n8n.example.com";
+      # N8N_PROTOCOL = "https";
+      # WEBHOOK_URL = "https://n8n.example.com";
+      # N8N_EDITOR_BASE_URL = "https://n8n.example.com";
+      # (These vars are defined in n8n’s docs) :contentReference[oaicite:4]{index=4}
+
+      # Recommended in real use: set a stable encryption key
+      # N8N_ENCRYPTION_KEY_FILE = "/run/secrets/n8n-encryption-key";
+      # (_FILE vars are handled as secrets by the NixOS module) :contentReference[oaicite:5]{index=5}
+    };
+  };
+
+  services.qdrant = {
+    enable = true;
+    settings = {
+      service = {
+        host = "127.0.0.1";
+        http_port = 6333;
+        grpc_port = 6334;
+      };
+      storage = {
+        storage_path = "/var/lib/qdrant/storage";
       };
     };
-
   };
 
   # Allow VMs to access Ollama via the libvirt NAT bridge
