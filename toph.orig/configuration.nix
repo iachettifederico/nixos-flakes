@@ -1,4 +1,4 @@
-# sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes-toph#toph"
+# sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes/toph#toph"
 
 { config, pkgs, emacs-with-grammars, ... }:
 
@@ -35,10 +35,18 @@
     LC_TIME = "es_AR.UTF-8";
   };
 
+  # services.xserver.enable = true;
+  # services.xserver.displayManager.lightdm.enable = true;
+  #services.xserver.desktopManager.cinnamon.enable = true;
+
   services.xserver = {
     enable = true;
-    displayManager.lightdm.enable = true; # or greetd, sddm, etc.
+    displayManager = {
+      lightdm.enable = true;
+      defaultSession = "cinnamon";
+    };
     windowManager.i3.enable = true;
+    desktopManager.cinnamon.enable = true;
   };
 
   services.xserver.xkb = {
@@ -56,17 +64,34 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
-    open = true;                # 570 series supports the open kernel module
+    open = true;
     modesetting.enable = true;
-    powerManagement.enable = false;
-    nvidiaSettings = true;      # gives you the nvidia-settings GUI
+    powerManagement.enable = true;
+    nvidiaSettings = true;
+
+    # PRIME configuration for hybrid graphics (NVIDIA + Intel)
+    # Sync mode: NVIDIA renders, Intel outputs to display
+    prime = {
+      sync.enable = true;
+
+      # Bus IDs found via: lspci | grep -E "VGA|3D"
+      # Intel: 00:02.0 - integrated GPU (has the display connected)
+      # NVIDIA: 01:00.0 - discrete GPU (RTX 2050)
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
   };
 
-  environment.sessionVariables = {
-    PATH = "$HOME/bin:$PATH";
-    XCURSOR_THEME = "Adwaita";
-    # XCURSOR_SIZE = "24";  # Optional: sets cursor size (common values: 16, 24, 32, 48)
-  };
+  # Pin to driver 570.133.07 (this exact snippet is confirmed working on NixOS 25.05 + linux 6.14.8).
+  # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+  #   version = "570.133.07";
+
+  #   sha256_64bit   = "sha256-LUPmTFgb5e9VTemIixqpADfvbUX1QoTT2dztwI3E3CY=";
+  #   openSha256     = "sha256-9l8N83Spj0MccA8+8R1uqiXBS0Ag4JrLPjrU3TaXHnM=";
+  #   settingsSha256 = "sha256-XMk+FvTlGpMquM8aE8kgYK2PIEszUZD2+Zmj2OpYrzU=";
+
+  #   usePersistenced = false;
+  # };
 
   # Configure console keymap
   console.keyMap = "us-acentos";
@@ -78,14 +103,14 @@
     packages = with pkgs; [
       font-awesome
       inconsolata
-      # jetbrains-mono
+      jetbrains-mono
       source-code-pro
       nerd-fonts.fira-code
     ];
 
     # Optional but nice: default monospace fonts
     fontconfig.defaultFonts.monospace = [
-      # "JetBrains Mono"
+      "JetBrains Mono"
       "Source Code Pro"
       "Inconsolata"
     ];
@@ -117,25 +142,33 @@
     gid = 1000;
   };
 
+  users.groups.sofi = {
+    gid = 1001;
+  };
+
   users.users.fedex = {
     isNormalUser = true;
     description = "Federico Martín Iachetti";
     uid = 1000;
     group = "fedex";  # primary group
-    extraGroups = [
-      "docker"
-      "libvirtd"
-      "networkmanager"
-      "wheel"
-      "users"
-    ];
+    extraGroups = [ "users" "networkmanager" "wheel" "docker" "adbusers" "video" ];
+    shell = pkgs.zsh;
+    packages = with pkgs; [];
+  };
+
+  users.users.sofi = {
+    isNormalUser = true;
+    description = "Sofi";
+    uid = 1001;
+    group = "sofi";  # primary group
+    extraGroups = [ "users" "networkmanager" "wheel" ];
     shell = pkgs.zsh;
     packages = with pkgs; [];
   };
 
   # Enable automatic login for the user.
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "fedex";
+  # services.displayManager.autoLogin.enable = true;
+  # services.displayManager.autoLogin.user = "fedex";
 
   programs.firefox.enable = true;
   programs.zsh.enable = true;
@@ -149,61 +182,38 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
 
-    # jetbrains-mono
-
     arandr
     audacity
     bat
     brave
-    claude-code
     davinci-resolve
-    difftastic
     discord
     docker
     docker-compose
     dunst
     emacs-with-grammars
-    entr
-    evince
     feh
     ferdium
     ffmpeg
     firefox-devedition
     flameshot
-    foliate
     font-awesome
-    ghostty
     git
     git-lfs
     github-cli
     gnome-calculator
     gnumake
     godot
-    hledger
-    hledger-interest
-    hledger-ui
-    hledger-web
     inconsolata
-    jdk21
-    jellyfin
-    jellyfin-ffmpeg
-    jellyfin-media-player
-    jellyfin-web
-    jq
-    kitty
-    lazydocker
+    jetbrains-mono
     ledger
     libnotify
     mc
-    mermaid-cli
-    nvtopPackages.nvidia
     nemo
     obs-studio
-    ollama-cuda
+    opencode
     pandoc
     pavucontrol
-    python3Packages.weasyprint
-    remmina
     ripgrep
     rofi
     silver-searcher
@@ -213,27 +223,23 @@
     telegram-desktop
     terminator
     tilda
-    transmission_4-gtk
     tree
     unzip
     vim
-    virtiofsd
     vlc
+    watchman
     xclip
     xhost
     xmodmap
+    zoom-us
 
     # Kalkomey
     awscli2
     openvpn
+    teams-for-linux
     vault
 
     config.hardware.nvidia.package
-  ];
-
-  programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [
-    libyaml
   ];
 
   virtualisation.docker.rootless = {
@@ -261,12 +267,22 @@
     }
   ];
 
-  # services.sunshine = {
-  #   enable = true;
-  #   autoStart = true;
-  #   capSysAdmin = true;
-  #   openFirewall = true;
-  # };
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+  };
+
+  hardware.opengl = {
+    enable = true;
+  };
+
+  services.sunshine = {
+    enable = true;
+    autoStart = true;
+    capSysAdmin = true;
+    openFirewall = true;
+  };
 
   # Enable the unfree 1Password packages
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [
@@ -284,51 +300,7 @@
     polkitPolicyOwners = [ "fedex" ];
   };
 
-  # Ollama AI service (accessible from VMs via virbr0 bridge)
-  services.ollama = {
-    enable = true;
-    package = pkgs.ollama-cuda;
-    host = "0.0.0.0";  # Listen on all interfaces including VM bridge
-    port = 11434;
-    openFirewall = false;  # Don't open to external network
-    environmentVariables = {
-      OLLAMA_HOST = "0.0.0.0";
-      OLLAMA_ORIGINS = "*";
-    };
-  };
-
-  services.jellyfin = {
-    enable = true;
-    openFirewall = true;
-    user = "fedex";
-  };
-
-  services.syncthing = {
-    enable = true;
-    user = "fedex";
-    dataDir = "/home/fedex/.local/share/syncthing";
-    configDir = "/home/fedex/.config/syncthing";
-    openDefaultPorts = true;
-  };
-
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "fiachetti@omashu.com";
-  };
-
-  services.qdrant = {
-    enable = true;
-    settings = {
-      service = {
-        host = "127.0.0.1";
-        http_port = 6333;
-        grpc_port = 6334;
-      };
-      storage = {
-        storage_path = "/var/lib/qdrant/storage";
-      };
-    };
-  };
+  users.extraGroups.vboxusers.members = [ "fedex" ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -342,6 +314,8 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  programs.adb.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
