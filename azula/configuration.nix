@@ -1,6 +1,25 @@
 # sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes-azula#azula"
 
-{ config, pkgs, emacs-with-grammars, ... }:
+{ config, pkgs, lib, emacs-with-grammars, ... }:
+
+let
+  systemdSystemGenerators = pkgs.runCommand "system-generators" {
+    preferLocalBuild = true;
+    packages = config.systemd.packages;
+  } ''
+    set -e
+    shopt -s nullglob
+    mkdir -p "$out"
+    for package in $packages
+    do
+      for hook in "$package"/lib/systemd/system-generators/*
+      do
+        ln -s "$hook" "$out/"
+      done
+    done
+    ${lib.concatStrings (lib.mapAttrsToList (name: target: "ln -s ${target} $out/${name};\n") config.systemd.generators)}
+  '';
+in
 
 {
   imports =
@@ -101,14 +120,14 @@
     packages = with pkgs; [
       font-awesome
       inconsolata
-      # jetbrains-mono
+      jetbrains-mono
       source-code-pro
       nerd-fonts.fira-code
     ];
 
     # Optional but nice: default monospace fonts
     fontconfig.defaultFonts.monospace = [
-      # "JetBrains Mono"
+      "JetBrains Mono"
       "Source Code Pro"
       "Inconsolata"
     ];
@@ -168,11 +187,14 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # Work around a nixpkgs regression where the generated
+  # /etc/systemd/system-generators builder fails if no package contributes any
+  # generator files.
+  environment.etc."systemd/system-generators".source = lib.mkForce systemdSystemGenerators;
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-
-    # jetbrains-mono
 
     arandr
     audacity
@@ -212,6 +234,7 @@
     jellyfin-ffmpeg
     jellyfin-media-player
     jellyfin-web
+    jetbrains-mono
     jq
     kitty
     lazydocker
@@ -220,10 +243,11 @@
     mc
     mermaid-cli
     n8n
-    nvtopPackages.nvidia
     nemo
+    nvtopPackages.nvidia
     obs-studio
     ollama-cuda
+    opencode
     pandoc
     pavucontrol
     python3Packages.weasyprint

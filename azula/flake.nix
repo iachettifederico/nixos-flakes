@@ -8,17 +8,17 @@
       url = "github:bobvanderlinden/nixpkgs-ruby";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    opencode = {
-      url = "github:anomalyco/opencode/v1.4.0";
-      inputs.nixpkgs.follows = "nixpkgs-master";
-    };
+    # opencode = {
+    #   url = "github:anomalyco/opencode/v1.4.0";
+    #   inputs.nixpkgs.follows = "nixpkgs-master";
+    # };
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-master, opencode, nixpkgs-ruby, emacs-overlay }:
+  outputs = { self, nixpkgs, nixpkgs-master, nixpkgs-ruby, emacs-overlay }:
     let
       system = "x86_64-linux";
       pkgs-master = import nixpkgs-master { inherit system; };
@@ -33,10 +33,10 @@
               doCheck = false;
             });
           })
-          # Use bun from nixpkgs master (1.3.9) for opencode compatibility
-          (final: prev: {
-            bun = pkgs-master.bun;
-          })
+          # # Use bun from nixpkgs master (1.3.9) for opencode compatibility
+          # (final: prev: {
+          #   bun = pkgs-master.bun;
+          # })
           # Exclude broken tree-sitter-quint grammar (hash mismatch in nixpkgs)
           (final: prev: {
             tree-sitter-grammars = prev.tree-sitter-grammars // {
@@ -55,14 +55,14 @@
       # OpenCode v1.4.0 ships an outdated x86_64-linux node_modules hash.
       # Rebuild that dependency with the current fixed-output hash so the
       # system package remains reproducible.
-      opencode-node-modules = pkgs.callPackage "${opencode}/nix/node_modules.nix" {
-        rev = opencode.shortRev or opencode.dirtyShortRev or "dirty";
-        hash = "sha256-85wpU1oCWbthPleNIOj5d5AOuuYZ6rM7gMLZR6YJ2WU=";
-      };
+      # opencode-node-modules = pkgs.callPackage "${opencode}/nix/node_modules.nix" {
+      #   rev = opencode.shortRev or opencode.dirtyShortRev or "dirty";
+      #   hash = "sha256-85wpU1oCWbthPleNIOj5d5AOuuYZ6rM7gMLZR6YJ2WU=";
+      # };
 
-      opencode-package = pkgs.callPackage "${opencode}/nix/opencode.nix" {
-        node_modules = opencode-node-modules;
-      };
+      # opencode-package = pkgs.callPackage "${opencode}/nix/opencode.nix" {
+      #   node_modules = opencode-node-modules;
+      # };
 
       # Custom Emacs build with tree-sitter grammars
       emacs-with-grammars = pkgs.emacsWithPackagesFromUsePackage {
@@ -99,11 +99,11 @@
 
           # Install OpenCode from the official dev branch.
           # Override bun to use 1.3.9 from nixpkgs-master
-          ({ pkgs, ... }: {
-            environment.systemPackages = [
-              opencode-package
-            ];
-          })
+          # ({ pkgs, ... }: {
+          #   environment.systemPackages = [
+          #     opencode-package
+          #   ];
+          # })
         ];
       };
 
