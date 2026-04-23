@@ -1,6 +1,6 @@
 # sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes-azula#azula"
 
-{ config, pkgs, lib, emacs-with-grammars, ... }:
+{ config, pkgs, lib, emacs-with-grammars, pkgs-master, ... }:
 
 let
   systemdSystemGenerators = pkgs.runCommand "system-generators" {
@@ -247,7 +247,7 @@ in
     nvtopPackages.nvidia
     obs-studio
     ollama-cuda
-    opencode
+    pkgs-master.opencode
     pandoc
     pavucontrol
     python3Packages.weasyprint

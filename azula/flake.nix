@@ -69,6 +69,7 @@
 
         specialArgs = {
           ruby-packages = nixpkgs-ruby.packages.${system};
+          inherit pkgs-master;
           inherit emacs-with-grammars;
         };
 
