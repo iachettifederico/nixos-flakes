@@ -1,6 +1,6 @@
 # sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes-toph#toph"
 
-{ config, pkgs, emacs-with-grammars, ... }:
+{ config, pkgs, emacs-with-grammars, pkgs-master, ... }:
 
 {
   imports =
@@ -200,6 +200,7 @@
     nemo
     obs-studio
     ollama-cuda
+    pkgs-master.opencode
     pandoc
     pavucontrol
     python3Packages.weasyprint
