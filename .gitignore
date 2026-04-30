@@ -1,3 +1,4 @@
 hardware-configuration.nix
+!azula/hardware-configuration.nix
 /.configuration.nix.swp
 azula/flake.lock

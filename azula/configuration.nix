@@ -1,4 +1,4 @@
-# sudo nixos-rebuild switch --impure --flake  "/home/fedex/nixos-flakes-azula#azula"
+# sudo nixos-rebuild switch --impure --flake "/home/fedex/nixos-flakes/azula#azula"
 
 { config, pkgs, lib, emacs-with-grammars, pkgs-master, ... }:
 
@@ -24,7 +24,7 @@ in
 {
   imports =
     [ # Include the results of the hardware scan.
-      /etc/nixos/hardware-configuration.nix
+      ./hardware-configuration.nix
     ];
 
   boot.loader.systemd-boot.enable = true;
@@ -97,6 +97,14 @@ in
     PATH = "$HOME/bin:$PATH";
     XCURSOR_THEME = "Adwaita";
     # XCURSOR_SIZE = "24";  # Optional: sets cursor size (common values: 16, 24, 32, 48)
+  };
+
+  xdg.portal = {
+    enable = true;
+    config.common.default = [ "gtk" ];
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+    ];
   };
 
   # # Pin to driver 570.133.07 (this exact snippet is confirmed working on NixOS 25.05 + linux 6.14.8).
@@ -196,6 +204,8 @@ in
   # $ nix search wget
   environment.systemPackages = with pkgs; [
 
+    # n8n
+
     arandr
     audacity
     bat
@@ -228,9 +238,11 @@ in
     hledger-interest
     hledger-ui
     hledger-web
+    htop
     inconsolata
     jdk21
     jellyfin
+    jellyfin-desktop
     jellyfin-ffmpeg
     jellyfin-media-player
     jellyfin-web
@@ -242,14 +254,13 @@ in
     libnotify
     mc
     mermaid-cli
-    n8n
     nemo
     nvtopPackages.nvidia
     obs-studio
     ollama-cuda
-    pkgs-master.opencode
     pandoc
     pavucontrol
+    pkgs-master.opencode
     python3Packages.weasyprint
     remmina
     ripgrep
@@ -275,6 +286,7 @@ in
     awscli2
     openvpn
     vault
+    nomad
 
     config.hardware.nvidia.package
   ];
@@ -420,29 +432,29 @@ in
 
   };
 
-  services.n8n = {
-    enable = true;
+  # services.n8n = {
+  #   enable = true;
 
-    # Optional: open the port on the firewall (defaults to 5678)
-    openFirewall = true; # opens services.n8n.environment.N8N_PORT :contentReference[oaicite:1]{index=1}
+  #   # Optional: open the port on the firewall (defaults to 5678)
+  #   openFirewall = true; # opens services.n8n.environment.N8N_PORT :contentReference[oaicite:1]{index=1}
 
-    environment = {
-      # Defaults are fine, but these are the common ones:
-      N8N_PORT = 5678;                 # :contentReference[oaicite:2]{index=2}
-      N8N_LISTEN_ADDRESS = "::";       # or "0.0.0.0" for IPv4 only :contentReference[oaicite:3]{index=3}
+  #   environment = {
+  #     # Defaults are fine, but these are the common ones:
+  #     N8N_PORT = 5678;                 # :contentReference[oaicite:2]{index=2}
+  #     N8N_LISTEN_ADDRESS = "::";       # or "0.0.0.0" for IPv4 only :contentReference[oaicite:3]{index=3}
 
-      # If you’ll access it via a domain / reverse proxy:
-      # N8N_HOST = "n8n.example.com";
-      # N8N_PROTOCOL = "https";
-      # WEBHOOK_URL = "https://n8n.example.com";
-      # N8N_EDITOR_BASE_URL = "https://n8n.example.com";
-      # (These vars are defined in n8n’s docs) :contentReference[oaicite:4]{index=4}
+  #     # If you’ll access it via a domain / reverse proxy:
+  #     # N8N_HOST = "n8n.example.com";
+  #     # N8N_PROTOCOL = "https";
+  #     # WEBHOOK_URL = "https://n8n.example.com";
+  #     # N8N_EDITOR_BASE_URL = "https://n8n.example.com";
+  #     # (These vars are defined in n8n’s docs) :contentReference[oaicite:4]{index=4}
 
-      # Recommended in real use: set a stable encryption key
-      # N8N_ENCRYPTION_KEY_FILE = "/run/secrets/n8n-encryption-key";
-      # (_FILE vars are handled as secrets by the NixOS module) :contentReference[oaicite:5]{index=5}
-    };
-  };
+  #     # Recommended in real use: set a stable encryption key
+  #     # N8N_ENCRYPTION_KEY_FILE = "/run/secrets/n8n-encryption-key";
+  #     # (_FILE vars are handled as secrets by the NixOS module) :contentReference[oaicite:5]{index=5}
+  #   };
+  # };
 
   services.qdrant = {
     enable = true;
